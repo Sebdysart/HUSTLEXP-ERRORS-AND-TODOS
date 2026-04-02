@@ -1,0 +1,48 @@
+name: Staleness Check
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday 9am UTC
+  workflow_dispatch:
+
+jobs:
+  check-freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check file freshness
+        run: |
+          STALE=0
+          THRESHOLD=$((90 * 24 * 60 * 60))
+          NOW=$(date +%s)
+          for f in *.md; do
+            [ "$f" = "README.md" ] && continue
+            LAST=$(git log -1 --format=%ct -- "$f" 2>/dev/null || echo 0)
+            AGE=$(( NOW - LAST ))
+            if [ "$AGE" -gt "$THRESHOLD" ]; then
+              DAYS=$(( AGE / 86400 ))
+              echo "::warning file=$f::$f is $DAYS days old (last updated $(git log -1 --format=%ci -- "$f"))"
+              STALE=1
+            fi
+          done
+          if [ "$STALE" -eq 1 ]; then
+            echo "::error::One or more tracking files are stale (>90 days). Re-audit needed."
+            exit 1
+          fi
+          echo "All tracking files are fresh."
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Staleness Report" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Last Updated | Age (days) |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------------|------------|" >> $GITHUB_STEP_SUMMARY
+          for f in *.md; do
+            [ "$f" = "README.md" ] && continue
+            DATE=$(git log -1 --format=%ci -- "$f" 2>/dev/null || echo "unknown")
+            LAST=$(git log -1 --format=%ct -- "$f" 2>/dev/null || echo 0)
+            AGE=$(( ($(date +%s) - LAST) / 86400 ))
+            echo "| $f | $DATE | $AGE |" >> $GITHUB_STEP_SUMMARY
+          done
