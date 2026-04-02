@@ -31,6 +31,10 @@
 | TODO-015 | Enable Firebase Crashlytics in frontend | HUSTLEXPFINAL1 | Observability |
 | TODO-016 | Enable structured logging in frontend | HUSTLEXPFINAL1 | Observability |
 | TODO-017 | Remove 39 `as any` type assertions from frontend | HUSTLEXPFINAL1 | Type Safety |
+| TODO-026 | Obtain embedding-capable API key for knowledge graph indexer (OpenAI recommended, ~$0.02/M tokens) | HUSTLEXP-DOCS / hustlexp-ai-backend | Infrastructure |
+| TODO-027 | Set remaining GitHub secrets on HUSTLEXP-DOCS: `DATABASE_URL`, `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `EMBEDDING_MODEL` | HUSTLEXP-DOCS | Infrastructure |
+| TODO-028 | Retrieve Supabase database password and construct `DATABASE_URL` connection string | Infrastructure | Infrastructure |
+| TODO-029 | Set `INDEXING_ENABLED=true` repo variable on HUSTLEXP-DOCS and verify workflow triggers | HUSTLEXP-DOCS | Infrastructure |
 
 ## P3 — Testing & Coverage (Week 3-4)
 
@@ -46,6 +50,12 @@
 | ID | Task | Repo | Category |
 |----|------|------|----------|
 | TODO-022 | Evaluate refactoring god services (ExpertiseSupplyService 1621L, TaskService 1487L, NotificationService 1430L) | hustlexp-ai-backend | Architecture |
-| TODO-023 | Resolve Supabase status — confirm legacy, remove references if dead | Infrastructure | Architecture |
+| ~~TODO-023~~ | ~~Resolve Supabase status — confirm legacy, remove references if dead~~ **RESOLVED 2026-04-02**: Supabase restored to ACTIVE_HEALTHY, now serves as vector store for knowledge graph indexer | Infrastructure | Architecture |
 | TODO-024 | Implement Phase 2 native SSL pinning (react-native-ssl-pinning) | HUSTLEXPFINAL1 | Security |
 | TODO-025 | Replace 16 frontend console.log calls with structured logger | HUSTLEXPFINAL1 | Observability |
+
+---
+
+## Changelog
+
+- **2026-04-02**: Added TODO-026 through TODO-029 (knowledge graph indexer pipeline). Resolved TODO-023 (Supabase confirmed active, not legacy). Added STOP-004 to INFRASTRUCTURE-ERRORS.md — Kimi Moonshot API does not support embeddings, blocking indexer activation.
