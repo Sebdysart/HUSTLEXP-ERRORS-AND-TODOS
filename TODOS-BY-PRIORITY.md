@@ -92,6 +92,12 @@
 | TODO-056 | Implement surge pricing manipulation guard (cap demand signal changes per 15-min window) | hustlexp-ai-backend | Financial Safety |
 | TODO-057 | Fix dispute window inconsistency (48h in DisputeService vs 6h in EscrowService) | hustlexp-ai-backend | Financial Safety |
 | TODO-058 | Add admin auth cache invalidation on role revocation (current 5-min stale window) | hustlexp-ai-backend | Security |
+| TODO-059 | Fix NotificationService frequency check to fail closed on Redis error (NOTIF-01) | hustlexp-ai-backend | Reliability |
+| TODO-060 | Fix NotificationService DB fallback frequency to fail closed on error (NOTIF-02) | hustlexp-ai-backend | Reliability |
+| TODO-061 | Parameterize SQL interval in `getRecentNotificationCount()` (NOTIF-03) | hustlexp-ai-backend | Security |
+| TODO-062 | Add timezone-aware quiet hours in NotificationService (NOTIF-04) | hustlexp-ai-backend | UX |
+| TODO-063 | Add FOR UPDATE SKIP LOCKED to outbox worker batch SELECT (OUTBOX-01) | hustlexp-ai-backend | Performance |
+| TODO-064 | Move surge evaluator and trust tier promotion to separate worker processes (OUTBOX-03) | hustlexp-ai-backend | Architecture |
 
 ---
 
@@ -99,3 +105,4 @@
 
 - **2026-04-02**: Added TODO-026 through TODO-029 (knowledge graph indexer pipeline). Resolved TODO-023 (Supabase confirmed active, not legacy). Added STOP-004 to INFRASTRUCTURE-ERRORS.md — Kimi Moonshot API does not support embeddings, blocking indexer activation.
 - **2026-04-02 (stress test)**: Added STOP-005 through STOP-012 to INFRASTRUCTURE-ERRORS.md (8 new findings from adversarial stress test loops). Added TODO-030 through TODO-058 (29 new items): P0.5 critical financial patches (030-037), P2.5 anti-abuse hardening (038-044), P4 Checkr integration, viral growth, insurance sustainability, and architecture fixes (045-058). Source: vault pages 14-15 (Stress-Test-Worst-Outcomes + Optimization-Playbook).
+- **2026-04-02 (loop 7+)**: Added TODO-059 through TODO-064 (6 new items from deep worker/notification/outbox stress test). Source: vault page 16. Confirmed 7 major architectural strengths in PaymentWorker, EscrowActionWorker, outbox pattern, HMAC signing, DLQ monitoring.
