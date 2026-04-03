@@ -2,165 +2,180 @@
 
 Central tracking repository for all known errors, vulnerabilities, TODO items, and architectural issues across the HustleXP platform.
 
-**Last Updated**: 2026-04-01
-**Audit Baseline**: Full platform audit, April 2026
+**Last Updated**: 2026-04-02
+**Audit Baseline**: Full source-level platform audit + adversarial stress test, April 2026
 
 ---
 
 ## Overview
 
-This repo consolidates findings from live audits across three HustleXP repositories:
-- **hustlexp-ai-backend** — Backend API (Hono, Node.js)
-- **HUSTLEXPFINAL1** — React Native frontend
-- **omni-link-hustlexp** — Third-party integration layer
+This repo consolidates findings from live source-level audits and adversarial stress testing across the HustleXP ecosystem. Every finding is grounded to specific files, line numbers, and code patterns with actionable remediation steps.
 
-All findings are grounded to specific code locations with actionable remediation steps.
+**Repos covered:**
+- **hustlexp-ai-backend** — Backend API (Hono + tRPC, 68 services, 38 routers, 290+ procedures)
+- **HUSTLEXPFINAL1** — React Native + Swift iOS client
+- **omni-link-hustlexp** — Multi-repo engineering control plane
+- **HUSTLEXP-DOCS** — Documentation authority (316 markdown files)
+- **HustleXP-Vault** — Obsidian knowledge vault (16 audit pages)
 
 ---
 
-## Quick Stats
+## Quick Stats (as of 2026-04-02)
 
-| Category | Count | Critical | High | Medium | Low |
-|----------|-------|----------|------|--------|-----|
-| Backend Errors | 30+ | 0 | 5 | 4 | 21+ |
-| Frontend Errors | 15+ | 3 | 5 | 2 | 5+ |
-| Infrastructure Issues | 3 | 1 | 0 | 1 | 1 |
-| Security Findings | 15 | 4 | 7 | 2 | 2 |
-| TODOs (All Priority) | 25 | 5 | 5 | 10 | 5 |
+| Category | Count |
+|----------|-------|
+| STOP Errors (Infrastructure) | 12 (3 CRITICAL, 4 HIGH, 2 MEDIUM, 1 RESOLVED, 1 REVISED, 1 NEW) |
+| INFO Findings | 2 (BackgroundCheck stub, Sybil defense gap) |
+| TODOs (All Priority) | 64 across 7 priority tiers |
+| Backend Code Errors | 30+ |
+| Frontend Code Errors | 15+ |
+| Security Findings | 15 |
+| Financial Invariants | 8 verified (1 known violation under re-verification) |
+
+---
+
+## Priority Breakdown (64 TODOs)
+
+| Priority | IDs | Count | Focus |
+|----------|-----|-------|-------|
+| **P0 — Launch Blockers** | TODO-001 to 005 | 5 | Stripe config, SSL pins, npm audit, CI/CD |
+| **P0.5 — Critical Financial** | TODO-030 to 037 | 8 | Stripe idempotency, post-commit failures, stub guard, referral payout, XP velocity, ASAP/escrow mismatch |
+| **P1 — Financial Safety** | TODO-006 to 010 | 5 | DisputeService verification, excluded tests, coverage thresholds |
+| **P2 — Code Quality** | TODO-011 to 017, 026-029 | 11 | Logging, config consolidation, knowledge graph pipeline |
+| **P2.5 — Anti-Abuse** | TODO-038 to 044 | 7 | Sybil defense, collusion detection, streak timezone, rejection counter, Redis/PG drift |
+| **P3 — Testing** | TODO-018 to 021 | 4 | Test fixes, E2E payment flow, credential audit |
+| **P4 — Architecture** | TODO-022 to 025, 045-064 | 24 | Checkr API, viral growth, insurance sustainability, notification reliability, outbox performance |
+
+---
+
+## STOP Errors (Infrastructure Blockers)
+
+### CRITICAL (Real Money Risk)
+| ID | Issue | File | Impact |
+|----|-------|------|--------|
+| STOP-005 | Stripe `transfers.create()` missing idempotency key | StripeService.ts | Double-payout on retry |
+| STOP-006 | Post-commit side effects (revenue, XP, insurance) outside transaction | EscrowService.ts | Silent revenue/XP loss |
+| STOP-007 | SelfInsurancePool direct `fetch()` bypasses StripeService | SelfInsurancePoolService.ts | Zero financial safeguards on claims |
+
+### HIGH (Must Fix Before Beta)
+| ID | Issue | Impact |
+|----|-------|--------|
+| STOP-001 | Stripe dashboard completely empty — $0 balance, 0 products | Payment flow dead on arrival |
+| STOP-008 | Webhook idempotency TOCTOU race (SELECT then INSERT, not atomic) | Duplicate webhook processing |
+| STOP-009 | `HX_STRIPE_STUB=1` bypasses all Stripe calls with no prod guard | Complete payment bypass if misconfigured |
+| STOP-010 | Referral rewards marked paid but no Stripe transfer created | Users never receive $5 reward |
+| STOP-011 | XP velocity check returns `suspicious: false` on error | Fraud detection bypass under load |
+| STOP-012 | ASAP price bump updates task price but not escrow amount | Worker payout $9 short on bumped tasks |
+
+### MEDIUM / INFO
+| ID | Issue |
+|----|-------|
+| STOP-004 | Knowledge graph indexer blocked — no embedding provider |
+| INFO-001 | BackgroundCheckService never calls Checkr API (stub) |
+| INFO-002 | No Sybil defense on account creation (rate limiting, phone verification) |
+
+### RESOLVED
+| ID | Resolution |
+|----|-----------|
+| STOP-002 | Backend CI/CD confirmed active (4 GitHub Actions workflows) |
+| STOP-003 | Database provider revised — Neon PostgreSQL (primary) + Supabase (vector store) |
 
 ---
 
 ## Detailed Tracking Files
 
-| File | Contents | Items Tracked |
-|------|----------|---------------|
-| [BACKEND-ERRORS.md](./BACKEND-ERRORS.md) | All backend code-level errors, vulnerabilities, and code quality issues | ~30 items |
-| [FRONTEND-ERRORS.md](./FRONTEND-ERRORS.md) | All frontend errors, security gaps, and quality issues | ~15 items |
-| [INFRASTRUCTURE-ERRORS.md](./INFRASTRUCTURE-ERRORS.md) | Infrastructure-level showstoppers and status | 3 items |
-| [FINANCIAL-INVARIANT-STATUS.md](./FINANCIAL-INVARIANT-STATUS.md) | Financial safety invariant verification status | 8 invariants + 1 violation |
-| [TODOS-BY-PRIORITY.md](./TODOS-BY-PRIORITY.md) | All TODOs prioritized P0-P4 with assignments | 25 items |
-| [SECURITY-FINDINGS.md](./SECURITY-FINDINGS.md) | Cross-repo security audit findings | 15 findings |
+| File | Contents |
+|------|----------|
+| [INFRASTRUCTURE-ERRORS.md](./INFRASTRUCTURE-ERRORS.md) | 12 STOP errors + 2 INFO findings with full root cause analysis |
+| [TODOS-BY-PRIORITY.md](./TODOS-BY-PRIORITY.md) | 64 TODOs across P0–P4 with repo, category, and effort estimates |
+| [BACKEND-ERRORS.md](./BACKEND-ERRORS.md) | 30+ backend code-level errors and vulnerabilities |
+| [FRONTEND-ERRORS.md](./FRONTEND-ERRORS.md) | 15+ frontend errors, security gaps, quality issues |
+| [FINANCIAL-INVARIANT-STATUS.md](./FINANCIAL-INVARIANT-STATUS.md) | 8 financial invariants verification status |
+| [SECURITY-FINDINGS.md](./SECURITY-FINDINGS.md) | 15 cross-repo security audit findings |
 
 ---
 
-## P0 Launch Blockers (Critical Path)
+## Stress Test Findings (April 2026)
 
-These 5 items must be completed before production launch:
+Seven adversarial stress test loops were run against the full backend source code (April 2, 2026). Key areas tested:
 
-1. **TODO-001**: Configure Stripe dashboard (products, prices, webhooks, test keys)
-   - **Repo**: Stripe / hustlexp-ai-backend
-   - **Impact**: STOP-001 — escrow/payment flow completely non-functional without this
-   - **ETA**: 2-3 hours
+| Loop | Focus | Source (Vault Page) |
+|------|-------|-------------------|
+| 1 | Escrow, Stripe, XP, disputes, auth, AI, DB | [[14-Stress-Test-Worst-Outcomes]] |
+| 2 | Checkr retention play, earned verification ladder | [[15-Optimization-Playbook]] |
+| 3 | Gamification exploits (streaks, badges, referrals, viral K-factor) | [[15-Optimization-Playbook]] |
+| 4 | Sybil attacks, graph-based collusion | [[15-Optimization-Playbook]] |
+| 5 | Economic model (insurance pool, surge pricing, IC compliance) | [[15-Optimization-Playbook]] |
+| 6 | Growth bottlenecks, viral coefficient, mega-viral formula | [[15-Optimization-Playbook]] |
+| 7+ | Workers, notifications, queues, outbox (deep source review) | [[16-Deep-Stress-Test-Workers-Notifications-Queues]] |
 
-2. **TODO-002**: Replace placeholder SSL pin hashes with real SPKI hashes
-   - **Repo**: HUSTLEXPFINAL1
-   - **File**: `HustleXP/src/network/ssl-pinning.ts`
-   - **Impact**: SEC-F01 — no MITM protection beyond standard CA validation
-   - **ETA**: 1 hour
+**Result**: 4 CRITICAL, 11 HIGH, 10+ MEDIUM findings. 7 confirmed architectural strengths in the worker/queue layer (atomic claims, HMAC signing, Zod validation, optimistic locking, triple-layer deduplication, DLQ monitoring).
 
-3. **TODO-003**: Remove C7 rehearsal failure injection code
-   - **Repo**: HUSTLEXPFINAL1
-   - **File**: `HustleXP/src/network/client.ts:38-40`
-   - **Impact**: SEC-F02 — debug code could accidentally break all network requests
-   - **ETA**: 30 minutes
+**Key insight**: The financial worker layer (PaymentWorker, EscrowActionWorker) is production-ready. The service layer (EscrowService, StripeService, SelfInsurancePool) is where the real money risk lives — fix STOP-005 through STOP-007 first.
 
-4. **TODO-004**: Run `npm audit fix` on backend
-   - **Repo**: hustlexp-ai-backend
-   - **Issues**: 5 HIGH vulnerabilities (hono, node-forge, fast-xml-parser)
-   - **Impact**: SEC-B01, SEC-B02, SEC-B03 — known RCE and MITM vectors
-   - **ETA**: 15 minutes + dependencies rebuild
+---
 
-5. **TODO-005**: Add frontend CI/CD pipeline
-   - **Repo**: HUSTLEXPFINAL1
-   - **Impact**: SEC-F08 — zero automated security checks before deploy
-   - **ETA**: 3-4 hours (GitHub Actions workflows)
+## Patch Priority Order
+
+**Week 1 (Critical financial patches — ~15 hours):**
+1. STOP-005: Add idempotency keys to Stripe transfers/refunds (2h)
+2. STOP-006: Move post-commit side effects into transaction or outbox (4-6h)
+3. STOP-007: Refactor insurance pool to use StripeService (2h)
+4. STOP-009: Add production guard against HX_STRIPE_STUB (15min)
+5. STOP-011: Change XP velocity check to fail closed (30min)
+6. STOP-008: Fix webhook TOCTOU with atomic INSERT ON CONFLICT (2h)
+
+**Week 2 (High priority — ~10 hours):**
+7. STOP-010: Wire actual Stripe transfer in referral rewards (2h)
+8. STOP-012: Fix ASAP bump / escrow amount mismatch (3-4h)
+9. TODO-038: Rate-limit account creation (Sybil phase 1) (3h)
+10. TODO-042: Add rejection counter to TaskService (1h)
+
+**Week 3+ (Anti-abuse, Checkr, viral, architecture):**
+- See TODOS-BY-PRIORITY.md for full P2.5 through P4 breakdown
 
 ---
 
 ## Financial Invariants Status
 
-All 8 core financial invariants verified **CLEAN** as of 2026-03-31:
-- Escrow amounts: positive integers + CHECK constraints
-- XP release gating: atomic with escrow release
-- Ledger immutability: INSERT-only, no UPDATE/DELETE
-- Payment atomicity: all ops within transactions
-- Stripe idempotency: unique event_id constraint
+8 core invariants verified as of 2026-03-31:
 
-**Known Violation**: ARCH-001 in `DisputeService.ts:311` — direct escrow UPDATE outside service layer for LOCKED_DISPUTE transition. Needs re-verification.
+| # | Invariant | Status |
+|---|-----------|--------|
+| INV-1 | Escrow amounts are positive integers in cents | PASSING |
+| INV-2 | XP only granted after escrow RELEASED | PASSING |
+| INV-3 | Escrow released exactly once per task | PASSING |
+| INV-4 | Ledger entries are append-only immutable | PASSING |
+| INV-5 | All payment amounts are positive integers in cents | PASSING |
+| INV-6 | Every financial op is atomic with audit log | PASSING |
+| INV-7 | Double-release protection (released_at IS NULL check) | PASSING |
+| INV-8 | Stripe webhooks processed idempotently | PASSING (with TOCTOU caveat — STOP-008) |
 
----
-
-## Security Summary
-
-### Critical Issues (Fix Immediately)
-- **SEC-F01**: SSL pin hashes are placeholders (no MITM defense)
-- **SEC-F02**: C7 rehearsal failure injection in production
-- **SEC-F07**: Zero E2E tests (no payment flow coverage)
-- **SEC-F08**: Zero CI/CD (no automated checks)
-
-### High Issues (Fix This Week)
-- **SEC-B01/B02/B03**: 5 HIGH npm vulnerabilities in hono, node-forge, fast-xml-parser
-- **SEC-F03**: No input validation on user forms
-- **SEC-F04**: Firebase Crashlytics commented out
-- **SEC-F05**: Production logging completely disabled
-
-### Medium Issues (Fix Within 2 Weeks)
-- **SEC-B04**: yaml stack overflow vulnerability
-- **SEC-F06**: GoogleService-Info.plist may expose API_KEY
+**Known violation**: ARCH-001 in DisputeService.ts:311 — direct escrow UPDATE outside service layer. Under re-verification.
 
 ---
 
-## Known Architecture Violations
+## Repository Map
 
-| ID | Violation | Severity | File | Status |
-|----|-----------|----------|------|--------|
-| ARCH-001 | DisputeService direct UPDATE on escrows table | MEDIUM | `DisputeService.ts:311` | OPEN — needs re-verification |
-
----
-
-## Testing & Coverage
-
-- **Backend Coverage**: 89.6% statements / 77.6% branches (actual) vs 10% threshold (config)
-- **Frontend Coverage**: Unknown (no coverage metrics enabled)
-- **Frontend E2E Tests**: 0 (zero end-to-end tests for payment flow)
-- **Excluded Test Files**: 9 (3 reference non-existent modules, 2 have wrong mock abstractions)
+| Repo | Purpose | Status |
+|------|---------|--------|
+| [hustlexp-ai-backend](https://github.com/Sebdysart/hustlexp-ai-backend) | Backend API — Hono + tRPC, 68 services, 290+ procedures | Active, Railway deployed |
+| [HUSTLEXPFINAL1](https://github.com/Sebdysart/HUSTLEXPFINAL1) | iOS client — React Native + Swift dual architecture | Active, CI passing |
+| [omni-link-hustlexp](https://github.com/Sebdysart/omni-link-hustlexp) | Multi-repo engineering control plane | Active, 887 tests |
+| [HUSTLEXP-DOCS](https://github.com/Sebdysart/HUSTLEXP-DOCS) | Documentation authority — 316 markdown files | Active |
+| [HustleXP-Vault](https://github.com/Sebdysart/HustleXP-Vault) | Obsidian knowledge vault — 16 audit pages | Active |
 
 ---
 
-## How to Use This Repo
+## Changelog
 
-1. **For Launch Prep**: Start with "P0 Launch Blockers" section above
-2. **For Security Review**: See SECURITY-FINDINGS.md (sorted by severity)
-3. **For Sprint Planning**: See TODOS-BY-PRIORITY.md (P0-P4 breakdown)
-4. **For Deep Dives**:
-   - Backend issues → BACKEND-ERRORS.md
-   - Frontend issues → FRONTEND-ERRORS.md
-   - Infrastructure → INFRASTRUCTURE-ERRORS.md
-   - Financial safety → FINANCIAL-INVARIANT-STATUS.md
+- **2026-04-02 (loop 7+)**: Added TODO-059 to TODO-064 (notification/outbox reliability). Confirmed 7 architectural strengths in worker layer.
+- **2026-04-02 (stress test)**: Added STOP-005 to STOP-012, INFO-001, INFO-002. Added TODO-030 to TODO-058 (35 new items).
+- **2026-04-02**: Added STOP-004, TODO-026 to TODO-029 (knowledge graph). Resolved TODO-023 (Supabase confirmed active).
+- **2026-04-01**: Initial audit baseline. STOP-001 to STOP-003, TODO-001 to TODO-025.
 
 ---
 
-## Repository Locations
-
-- **Backend**: `hustlexp-ai-backend/` (Hono + Node.js)
-- **Frontend**: `HUSTLEXPFINAL1/` (React Native, TypeScript)
-- **Database**: Neon PostgreSQL (103 tables, PostGIS enabled)
-- **Payment Processor**: Stripe (currently unconfigured)
-- **Legacy DB** (Inactive): Supabase "aura-ventures"
-
----
-
-## Maintenance
-
-This tracking repo is updated quarterly or after major audits. Each file is independently versioned with a "Last Verified" date to track freshness.
-
-For questions or corrections, file an issue with:
-- Repo name
-- File path + line number
-- Proposed fix or correction
-
----
-
-**Generated**: 2026-04-01
-**Audit Baseline**: Full platform audit, April 2026
+**Generated**: 2026-04-02
+**Audit Baseline**: Full source-level platform audit + 7 adversarial stress test loops
 **Next Review**: 2026-07-01 (Q2 2026)
