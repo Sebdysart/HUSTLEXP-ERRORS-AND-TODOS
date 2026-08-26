@@ -1,5 +1,7 @@
 # HUSTLEXP-ERRORS-AND-TODOS
 
+> **Classification: HISTORICAL/CURRENT-EVIDENCE MIX.** This repository preserves source-dated findings and work tracking. It does not control company strategy or current implementation truth. Use the [HustleXP Business and Universal V1 Charter](https://github.com/Sebdysart/HUSTLEXP-DOCS/blob/main/governance/HUSTLEXP_BUSINESS_AND_UNIVERSAL_V1_CHARTER.md) for business policy and verify every unresolved finding at an exact current revision. Documentation here authorizes no deployment or money movement.
+
 Central tracking repository for all known errors, vulnerabilities, TODO items, and architectural issues across the HustleXP platform.
 
 **Last Updated**: 2026-04-02
